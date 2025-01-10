@@ -61,9 +61,26 @@ class MongoDatabase(Database):
         self._maybe_create_collection(collection)
         return self.db[collection].delete_one({"_id": id})
 
-    def query(self, query: dict, collection: str, *args, **kwargs):
+    def query(
+        self,
+        query: dict,
+        collection: str,
+        sort_by: str = None,
+        limit: int = None,
+        ascending: bool = True,
+        *args,
+        **kwargs
+    ):
         self._maybe_create_collection(collection)
-        return self.db[collection].find(query)
+
+        result = self.db[collection].find(query)
+        if sort_by:
+            result = result.sort(sort_by, 1 if ascending else -1)
+
+        if limit:
+            result = result.limit(limit)
+
+        return list(result)
 
 
 class InMemoryDatabase(Database):

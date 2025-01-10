@@ -1,7 +1,5 @@
 from abc import ABC, abstractmethod
-from datetime import datetime
 from typing import Any, List
-from uuid import uuid4
 
 from src.databases.database import Database
 from src.dataclasses.aggregators import KeywordsAggregation, SentimentAggregation
@@ -23,12 +21,7 @@ class KeywordsAggregator(Aggregator):
         super().__init__(database)
 
     def run(self, data: List[EnrichedData], metadata: dict, *args, **kwargs):
-        keywords_aggregation = KeywordsAggregation(
-            _id=uuid4().hex,
-            date_time=datetime.now(),
-            keywords={},
-            metadata=metadata,
-        )
+        keywords_aggregation = KeywordsAggregation.empty(metadata=metadata)
 
         for enriched_data in data:
             for keyword in enriched_data.keywords:
@@ -47,12 +40,7 @@ class SentimentAggregator(Aggregator):
         super().__init__(database)
 
     def run(self, data: List[EnrichedData], metadata: dict, *args, **kwargs):
-        sentiment_aggregation = SentimentAggregation(
-            _id=uuid4().hex,
-            date_time=datetime.now(),
-            sentiment={},
-            metadata=metadata,
-        )
+        sentiment_aggregation = SentimentAggregation.empty(metadata=metadata)
 
         for enriched_data in data:
             sentiment_aggregation.add_sentiment(enriched_data.sentiment)

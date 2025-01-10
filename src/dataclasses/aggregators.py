@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
+from uuid import uuid4
 
 
 @dataclass
@@ -20,6 +21,15 @@ class KeywordsAggregation:
             "keywords": self.keywords,
             "metadata": self.metadata,
         }
+
+    @classmethod
+    def empty(cls, date_time: datetime = None, metadata: dict = None):
+        return cls(
+            _id=uuid4().hex,
+            date_time=date_time or datetime.now(),
+            keywords={},
+            metadata=metadata or {},
+        )
 
     @classmethod
     def from_dict(cls, data):
@@ -50,6 +60,18 @@ class KeywordsAggregation:
     def get_keywords(self):
         return list(self.keywords.keys())
 
+    def limit(self, top_k: int):
+        self.keywords = dict(
+            sorted(self.keywords.items(), key=lambda x: x[1], reverse=True)[:top_k]
+        )
+        return self
+
+    def sort(self, reverse: bool):
+        self.keywords = dict(
+            sorted(self.keywords.items(), key=lambda x: x[1], reverse=reverse)
+        )
+        return self
+
 
 @dataclass
 class SentimentAggregation:
@@ -69,6 +91,15 @@ class SentimentAggregation:
             "sentiment": self.sentiment,
             "metadata": self.metadata,
         }
+
+    @classmethod
+    def empty(cls, date_time: datetime = None, metadata: dict = None):
+        return cls(
+            _id=uuid4().hex,
+            date_time=date_time or datetime.now(),
+            sentiment={},
+            metadata=metadata or {},
+        )
 
     @classmethod
     def from_dict(cls, data):
@@ -98,3 +129,15 @@ class SentimentAggregation:
 
     def get_sentiments(self):
         return list(self.sentiment.keys())
+
+    def limit(self, top_k: int):
+        self.sentiment = dict(
+            sorted(self.sentiment.items(), key=lambda x: x[1], reverse=True)[:top_k]
+        )
+        return self
+
+    def sort(self, reverse: bool):
+        self.sentiment = dict(
+            sorted(self.sentiment.items(), key=lambda x: x[1], reverse=reverse)
+        )
+        return self

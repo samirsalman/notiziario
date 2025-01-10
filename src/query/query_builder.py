@@ -2,6 +2,7 @@ from datetime import datetime
 
 from src.databases.database import Database
 from src.dataclasses.aggregators import KeywordsAggregation, SentimentAggregation
+from src.dataclasses.enriched_data import EnrichedData
 from src.knowledge.knowledge import Knowledge
 
 
@@ -12,20 +13,25 @@ class QueryBuilder:
 
     def run(
         self,
+        query: str,
         country: str = "all",
         keyword: str = None,
         sentiment: str = None,
         limit: int = 10,
-    ):
-        query = {}
+    ) -> list[EnrichedData]:
+        metadata = {}
         if country != "all":
-            query["country"] = country
+            metadata["country"] = country
         if keyword:
-            query["keyword"] = keyword
+            metadata["keyword"] = keyword
         if sentiment:
-            query["sentiment"] = sentiment
+            metadata["sentiment"] = sentiment
 
-        return self.knowledge.retrieve(query, metadata={}, top_k=limit)
+        return self.knowledge.retrieve(
+            query=query,
+            metadata=metadata,
+            top_k=limit,
+        )
 
     def _aggregate_keywords(self, keywords: list[KeywordsAggregation]):
         aggregation = KeywordsAggregation.empty()

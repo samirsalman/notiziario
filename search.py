@@ -22,11 +22,6 @@ db = MongoDatabase(
     port=27017,
 )
 
-# while True:
-#     query = input("Query: ")
-#     results = knowledge.search(query, top_k=2, metadata={"country": "IT"})
-#     for result in results:
-#         print("Article", result.summary, "\n\n")
 
 query_builder = QueryBuilder(knowledge, db)
 
@@ -49,3 +44,16 @@ print("\n### Top Sentiments ###")
 total_sentiments = sum(top_sentiments.sentiment.values())
 for sentiment, count in top_sentiments.sentiment.items():
     print(f"* {sentiment}: {count} ({count / total_sentiments:.2%})")
+
+
+results = query_builder.run(
+    query="Donald Trump", country=Country.ITALY.name(), sentiment="negative", limit=4
+)
+
+print("\n### Results ###")
+for result in results:
+    print(f"* {result.title} ({result.published})")
+    print(f"  {result.summary}")
+    print(f"  Sentiment: {result.sentiment}")
+    print(f"  Keywords: {result.keywords}")
+    print("-" * 80)

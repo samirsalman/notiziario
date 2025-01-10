@@ -8,11 +8,11 @@ class Knowledge(ABC):
         self.db = db
 
     @abstractmethod
-    def exists(self, id: str, metadata: dict = None, *args, **kwargs):
+    def exists(self, id: str, metadata: dict, *args, **kwargs):
         pass
 
     @abstractmethod
-    def retrieve(self, query: str, metadata: dict, top_k: int = 10, *args, **kwargs):
+    def retrieve(self, query: Any, metadata: dict, top_k: int = 10, *args, **kwargs):
         pass
 
     @abstractmethod

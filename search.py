@@ -1,3 +1,4 @@
+from textwrap import fill
 from datetime import datetime
 
 from qdrant_client import QdrantClient
@@ -6,6 +7,17 @@ from src.agents.agent import Country
 from src.databases.database import MongoDatabase
 from src.knowledge.news_knowledge import QdrantNewsKnowledge
 from src.query.query_builder import QueryBuilder
+
+def choice(query, choices):
+    for i in range(len(choices)):
+        query += f" {i}. " + choices[i]
+
+    while True:
+        try:
+            return choices[int(input(f"{query}: "))]
+        except:
+            pass
+
 
 knowledge = QdrantNewsKnowledge(
     db=QdrantClient(host="localhost", port=6333),
@@ -22,38 +34,40 @@ db = MongoDatabase(
     port=27017,
 )
 
-
 query_builder = QueryBuilder(knowledge, db)
-
 
 top_kw = query_builder.get_keywords(
     start_date=datetime(2025, 1, 1), end_date=datetime.now(), top_k=10
 )
 
-
 top_sentiments = query_builder.get_sentiments(
     start_date=datetime(2025, 1, 1), end_date=datetime.now(), top_k=10
 )
 
-print("### Top Keywords ###")
+
+print("- Top Keywords")
 total_kw = sum(top_kw.keywords.values())
 for keyword, count in top_kw.keywords.items():
-    print(f"* {keyword}: {count} ({count / total_kw:.2%})")
+    print(f"* {count=:<3} ({100 * count / total_kw:>5.2f}%) - {keyword}")
 
-print("\n### Top Sentiments ###")
+print("\n- Top Sentiments")
 total_sentiments = sum(top_sentiments.sentiment.values())
 for sentiment, count in top_sentiments.sentiment.items():
-    print(f"* {sentiment}: {count} ({count / total_sentiments:.2%})")
+    print(f"* {count=:<3} ({100 * count / total_sentiments:>5.2f}%) - {sentiment}")
 
 
+print("\n- Search")
 results = query_builder.run(
-    query="Donald Trump", country=Country.ITALY.name(), sentiment="negative", limit=4
+    query=input("Query: "),
+    country=choice("Country", choices=[Country.ITALY.name(), Country.USA.name(), Country.FRANCE.name(), Country.SPAIN.name()]),
+    sentiment=choice("Sentiment", choices=["positive", "negative", "neutral"]),
+    limit=4
 )
 
-print("\n### Results ###")
+print()
 for result in results:
-    print(f"* {result.title} ({result.published})")
-    print(f"  {result.summary}")
-    print(f"  Sentiment: {result.sentiment}")
-    print(f"  Keywords: {result.keywords}")
-    print("-" * 80)
+    print(f"{'Title:':<10}", fill(result.title, width=128, subsequent_indent=' '*11))
+    print(f"{'Summary:':<10}", fill(result.summary, width=128, subsequent_indent=' '*11))
+    print(f"{'Sentiment:':<10}", result.sentiment)
+    print(f"{'Keywords:':<10}", fill(str(result.keywords), width=128, subsequent_indent=' '*11))
+    print("-" * 11)

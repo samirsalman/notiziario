@@ -27,12 +27,12 @@ query_builder = QueryBuilder(knowledge, db)
 
 
 top_kw = query_builder.get_keywords(
-    start_date=datetime(2025, 1, 1), end_date=datetime(2025, 1, 10), top_k=10
+    start_date=datetime(2025, 1, 1), end_date=datetime.now(), top_k=10
 )
 
 
 top_sentiments = query_builder.get_sentiments(
-    start_date=datetime(2025, 1, 1), end_date=datetime(2025, 1, 10), top_k=10
+    start_date=datetime(2025, 1, 1), end_date=datetime.now(), top_k=10
 )
 
 print("### Top Keywords ###")
